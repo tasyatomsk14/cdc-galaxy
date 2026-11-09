@@ -1,0 +1,128 @@
+<?php 
+require_once 'db.php'; 
+?>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CDC GALAXY</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&family=Unbounded:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- НАВИГАЦИЯ -->
+<header class="navbar"><div class="container">
+<div class="logo">CDC <span>GALAXY</span></div>
+<ul class="nav-links">
+<li><a href="#services">Услуги</a></li>
+<li><a href="#gallery">Фото</a></li>
+<li><a href="#vip">VIP</a></li>
+<li><a href="#news">Новости</a></li>
+<li><a href="#faq">Вопросы</a></li>
+<li><a href="#contacts">Контакты</a></li>
+</ul></div></header>
+
+<!-- HERO -->
+<section class="hero"><div class="container">
+<div>
+<span class="badge">18+</span>
+<h1>CDC GALAXY — вечер, который не хочется заканчивать</h1>
+<p>Развлекательный комплекс в центре Якутска: боулинг, караоке, бильярд, ресторан, VIP-зоны и отель.</p>
+<button class="btn btn-org" onclick="openModal()">📞 Забронировать стол</button>
+</div>
+<img src="images/building.jpg" alt="Здание">
+</div></section>
+
+<!-- УСЛУГИ -->
+<section id="services"><div class="container">
+<h2 class="sec-title">Всё для отдыха</h2>
+<div class="grid">
+<div class="card"><div class="icon">🎳</div><h3>Боулинг</h3><p>Современные дорожки.</p></div>
+<div class="card"><div class="icon">🎤</div><h3>Караоке</h3><p>Тысячи песен.</p></div>
+<div class="card"><div class="icon">🎱</div><h3>Бильярд</h3><p>Русский и американский пул.</p></div>
+<div class="card"><div class="icon">🍸</div><h3>Show Club</h3><p>Бары и VIP-зоны.</p></div>
+<div class="card"><div class="icon">🍣</div><h3>Ресторан</h3><p>Японская и итальянская кухня.</p></div>
+<div class="card"><div class="icon">🛏️</div><h3>Отель и сауна</h3><p>5 номеров и сауна.</p></div>
+</div></div></section>
+
+<!-- ГАЛЕРЕЯ -->
+<section id="gallery"><div class="container">
+<h2 class="sec-title">Атмосфера</h2>
+<div class="gal">
+<div class="g-item" onclick="openLight(this)"><img src="images/hotel.jpg" alt="Отель"><span class="g-cap">Номер в отеле</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/prizes.jpg" alt="Призы"><span class="g-cap">Конкурсы и призы</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/tournament.jpg" alt="Турниры"><span class="g-cap">Турниры по боулингу</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/bar.jpg" alt="Бар"><span class="g-cap">Бар</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/evening.jpg" alt="Вечер"><span class="g-cap">Вечер в «Космоболе»</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/family.jpg" alt="Семья"><span class="g-cap">Боулинг всей семьёй</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/dancefloor.jpg" alt="Танцпол"><span class="g-cap">Танцпол</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/lanes.jpg" alt="Дорожки"><span class="g-cap">Дорожки</span></div>
+<div class="g-item" onclick="openLight(this)"><img src="images/hall.jpg" alt="Холл"><span class="g-cap">Холл и VIP</span></div>
+</div></div></section>
+
+<!-- VIP -->
+<section id="vip"><div class="container">
+<h2 class="sec-title">VIP-залы</h2>
+<div class="grid">
+<div class="card"><h3>Малый VIP</h3><p>до 9 чел. Депозит 12 000 ₽</p></div>
+<div class="card"><h3>Белая VIP</h3><p>до 22 чел. Депозит 20 000 ₽</p></div>
+</div></div></section>
+
+<!-- НОВОСТИ (ТЕПЕРЬ НА PHP) -->
+<section id="news"><div class="container">
+<h2 class="sec-title">Новости</h2>
+<div class="grid">
+<?php 
+// Вытаскиваем 4 последние новости из базы
+$newsItems = $pdo->query("SELECT * FROM news ORDER BY id DESC LIMIT 4")->fetchAll();
+if (empty($newsItems)) {
+    echo '<p style="color:var(--mut)">Пока новостей нет.</p>';
+}
+foreach ($newsItems as $item): 
+?>
+<div class="card">
+    <p style="color:var(--org);font-size:.8rem"><?= htmlspecialchars($item['date']) ?></p>
+    <h3><?= htmlspecialchars($item['title']) ?></h3>
+    <p><?= htmlspecialchars($item['content']) ?></p>
+</div>
+<?php endforeach; ?>
+</div></div></section>
+
+<!-- FAQ -->
+<section id="faq"><div class="container">
+<h2 class="sec-title">Вопросы</h2>
+<div style="display:flex;flex-direction:column;gap:10px;max-width:700px">
+<details style="background:var(--card);border-radius:12px;padding:10px 15px"><summary style="cursor:pointer;font-weight:600">Как забронировать?</summary><p style="color:var(--mut);margin-top:8px;font-size:.9rem">Позвоните по телефону 751-100.</p></details>
+<details style="background:var(--card);border-radius:12px;padding:10px 15px"><summary style="cursor:pointer;font-weight:600">Со скольки лет?</summary><p style="color:var(--mut);margin-top:8px;font-size:.9rem">18+</p></details>
+<details style="background:var(--card);border-radius:12px;padding:10px 15px"><summary style="cursor:pointer;font-weight:600">Есть парковка?</summary><p style="color:var(--mut);margin-top:8px;font-size:.9rem">Да, рядом со зданием.</p></details>
+</div></div></section>
+
+<!-- ПОДВАЛ -->
+<footer id="contacts" class="footer"><div class="container">
+<div><strong>CDC GALAXY</strong><br>ул. Красильникова, 8<br>18+</div>
+<div>📞 751-100 — столики<br>📞 754-100 — боулинг<br>✉️ galaxy-show@mail.ru</div>
+<div>Ежедневно с 12:00 до 02:00</div>
+</div></footer>
+
+<!-- МОДАЛКА БРОНИ -->
+<div class="modal" id="mBook"><div class="modal-box">
+<button class="close" onclick="closeModal()">×</button>
+<h2 style="margin-bottom:15px">Забронировать</h2>
+<form id="bForm">
+<div class="f-group"><label>Имя</label><input type="text" id="fName" required placeholder="Иван"></div>
+<div class="f-group"><label>Телефон</label><input type="tel" id="fPhone" required placeholder="+7..."></div>
+<div class="f-group"><label>Дата и время</label><input type="text" id="fDate" required placeholder="25 октября 19:00"></div>
+<label class="f-check"><input type="checkbox" id="fCheck"><span>Согласен с <a href="#">политикой</a></span></label>
+<button type="submit" class="btn btn-org" style="width:100%">Отправить</button>
+<div class="f-status" id="fStatus"></div>
+</form>
+</div></div>
+
+<!-- ЛАЙТБОКС -->
+<div class="modal" id="mLight" onclick="closeLight()"><img id="lightImg" style="max-height:90vh;max-width:95vw" src=""></div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
