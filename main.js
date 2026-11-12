@@ -1,38 +1,100 @@
-// ===== Публичный сайт =====
-function openModal(){document.getElementById('mBook').classList.add('open')}
-function closeModal(){document.getElementById('mBook').classList.remove('open')}
-function openLight(el){
-  document.getElementById('lightImg').src=el.querySelector('img').src;
-  document.getElementById('mLight').classList.add('open');
+// ================= ЛОГИКА АДМИНКИ =================
+
+// Проверяем, залогинен ли уже кто-то при загрузке страницы
+window.onload = function() {
+    const savedRole = sessionStorage.getItem('userRole');
+    if (savedRole) {
+        showDashboard(savedRole);
+    }
+};
+
+function doLogin() {
+    const user = document.getElementById('user').value;
+    const pass = document.getElementById('pass').value;
+    const role = document.getElementById('roleSelect').value;
+
+    let isValid = false;
+
+    // Проверка данных
+    if (role === 'admin' && user === 'admin' && pass === '1234') {
+        isValid = true;
+    } else if (role === 'operator' && user === 'operator' && pass === '0000') {
+        isValid = true;
+    }
+
+    if (isValid) {
+        sessionStorage.setItem('userRole', role);
+        showDashboard(role);
+        document.getElementById('logErr').style.display = 'none';
+    } else {
+        document.getElementById('logErr').style.display = 'block';
+    }
 }
-function closeLight(){document.getElementById('mLight').classList.remove('open')}
 
-// ===== Форма бронирования =====
-document.getElementById('bForm').addEventListener('submit',function(e){
-  e.preventDefault();
-  const st=document.getElementById('fStatus');
-  if(!document.getElementById('fCheck').checked){
-    st.className='f-status err';
-    st.textContent='Согласитесь с политикой!';
-    return;
-  }
-  const name=document.getElementById('fName').value;
-  const phone=document.getElementById('fPhone').value;
-  const date=document.getElementById('fDate').value;
-  let arr=JSON.parse(localStorage.getItem('bookings'))||[];
-  arr.unshift({name:name,phone:phone,date:date,timestamp:new Date().toLocaleString('ru-RU')});
-  localStorage.setItem('bookings',JSON.stringify(arr));
-  st.className='f-status ok';
-  st.textContent='✅ Забронировано! Мы свяжемся с вами.';
-  this.reset();
-  setTimeout(function(){ closeModal(); }, 2000);
-});
+function showDashboard(role) {
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('dash').style.display = 'flex';
+    
+    // Настраиваем интерфейс под роль
+    const sideTitle = document.getElementById('sideTitle');
+    if (role === 'operator') {
+        sideTitle.textContent = 'CDC (Оператор)';
+    } else {
+        sideTitle.textContent = 'CDC GALAXY (Админ)';
+    }
 
-// ===== Fallback для отсутствующих изображений =====
-document.querySelectorAll('img').forEach(function(img){
-  img.addEventListener('error', function(){
-    if(this.dataset.fallback) return;
-    this.dataset.fallback='1';
-    this.src='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="%23141a36"/><text x="50%" y="50%" fill="%238c9bff" font-family="sans-serif" font-size="24" text-anchor="middle" dy=".3em">CDC GALAXY</text></svg>';
-  });
-});
+    renderTable(role);
+}
+
+function doLogout() {
+    sessionStorage.removeItem('userRole');
+    document.getElementById('admin').classList.remove('on'); // Если используется как модалка
+    window.location.reload(); // Перезагружаем страницу, чтобы сбросить всё
+}
+
+// Отрисовка таблицы
+function renderTable(role) {
+    const arr = JSON.parse(localStorage.getItem('bookings')) || [];
+    const tb = document.getElementById('tbody');
+    
+    if (arr.length === 0) {
+        tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">Нет новых заявок</td></tr>';
+        return;
+    }
+
+    tb.innerHTML = arr.map((b, i) => {
+        // Если роль оператора — кнопку удаления не показываем
+        let actionBtn = '';
+        if (role === 'admin') {
+            actionBtn = `<button class="del-btn" onclick="delBook(${i})">Удалить</button>`;
+        } else {
+            actionBtn = `<span style="color:#888;font-size:.8rem">Нет прав</span>`;
+        }
+
+        return `<tr>
+            <td>${arr.length - i}</td>
+            <td><strong>${b.name}</strong></td>
+            <td>${b.phone}</td>
+            <td>${b.date}</td>
+            <td style="color:#888;font-size:.8rem">${b.timestamp}</td>
+            <td>${actionBtn}</td>
+        </tr>`;
+    }).join('');
+}
+
+// Удаление заявки
+function delBook(i) {
+    // Проверка на всякий случай
+    const role = sessionStorage.getItem('userRole');
+    if (role !== 'admin') {
+        alert('У вас нет прав на удаление заявок!');
+        return;
+    }
+
+    if (confirm('Удалить эту заявку?')) {
+        let arr = JSON.parse(localStorage.getItem('bookings')) || [];
+        arr.splice(i, 1);
+        localStorage.setItem('bookings', JSON.stringify(arr));
+        renderTable('admin'); // Перерисовываем
+    }
+}
